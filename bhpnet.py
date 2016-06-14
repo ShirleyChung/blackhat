@@ -67,6 +67,57 @@ def client_sender(buffer):
         #拆掉連線
         client.close()
         
+def client_handler(client_socket):
+    global upload_destination
+    global execute
+    global command
+    
+    #檢查上傳
+    if len(upload_destination):
+        #讀入所有bytes並寫到指定位置
+        file_buffer =""
+        
+        #一直讀到沒有資料為止
+        while True:
+            data = client_socket.recv(1024)
+            if not data:
+                break
+            else:
+                file_buffer += data
+                
+        #然後試著把這些資料存到檔案
+        try:
+            file_descriptor = open(upload_destination, "wb")
+            file_descriptor.write(file_buffer)
+            file_descriptor.close()
+            
+            #回應我們確實把資料存成檔案了
+            client_socket.send("Successfully saved file to %s\r\n" % upload_destination)
+        except:
+            client_socket.send("Failed to save file to %s\r\n" % upload_destination)
+            
+    if len(execute):
+        #執行指定
+        output = run_command(execute)
+        client_socket.send(output)
+        
+    if command:
+        while True:
+            #顯示一個簡單的提示
+            client_socket.send("<BHP:#> ")
+            #接著持續接收資料, 直到收到LF(Enter鍵)
+            cmd_buffer = ""
+            
+            while "\n" not in cmd_buffer:
+                cmd_buffer += client_socket.recv(1024)
+                
+            response = run_command(cmd_buffer)
+            
+            #回傳
+            client_socket.send(response)
+            
+            
+        
 def server_loop():
     global target
     
