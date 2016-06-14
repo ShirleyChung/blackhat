@@ -133,7 +133,7 @@ def server_loop():
         client_socket, addr = server.accept()
         
         #啟動一個thread處理新用戶端
-        client_thread = threading.Thread(target=client_handler, args=(client_socket,)))
+        client_thread = threading.Thread(target=client_handler, args=(client_socket,))
         client_thread.start()
         
 def run_command(command):
