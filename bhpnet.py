@@ -28,6 +28,75 @@ def usage():
     print "bhpnet.py -t 192.168.0.1 -p 5555 -l -e=\"cat /etc/passwd\""
     print "echo 'ABCDEFGHI' | ./bhpnet.py -t 192.168.11.12 -p 135"
     sys.exit(0)
+
+def client_sender(buffer):
+    
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    
+    try:
+        #連到目標主機
+        client.connect((target, port))
+        
+        if (len(buffer)):
+            client.send(buffer)
+            
+        while True:
+            #然後等資料回傳
+            recv_len = 1
+            response = ""
+            
+            while recv_len:
+                data    = client.recv(4096)
+                recv_len= len(data)
+                response+= data
+                
+                if recv_len < 4096:
+                    break
+                
+                print response, 
+                
+                #等待更多輸入
+                buffer = raw_input("")
+                buffer += "\n"
+                
+                #傳出去
+                client.send(buffer)
+    except:
+        print "[*] Exception! Exiting."
+        
+        #拆掉連線
+        client.close()
+        
+def server_loop():
+    global target
+    
+    #若沒定義目標, 就監聽所有介面
+    if not len(target):
+        target = "0.0.0.0"
+        
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind((target.port))
+    server.listen(5)
+    
+    while True:
+        client_socket, addr = server.accept()
+        
+        #啟動一個thread處理新用戶端
+        client_thread = threading.Thread(target=client_handler, args=(client_socket,)))
+        client_thread.start()
+        
+def run_command(command):
+    #裁掉換行符號
+    command = command.rstrip()
+    
+    #執行指令並取回輸出
+    try:
+        output = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+    except:
+        output = "指令執行失敗\r\n"
+    #把輸出傳回用戶端
+    return output
+
     
 def main():
     global listen
