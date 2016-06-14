@@ -4,7 +4,7 @@ import getopt
 import threading
 import subprocess
 
-#©w¸q¤@¨Ç¥ş°ìÅÜ¼Æ
+#å®šç¾©ä¸€äº›å…¨åŸŸè®Šæ•¸
 listen  = False
 command = False
 execute = ""
@@ -15,14 +15,14 @@ port = 0
 def usage():
     print "BHP Net Tool"
     print
-    print "¥Îªk: bhpnet.py -t target_host -p port"
-    print "-l --listen                    - ¦b [host]:[port] ºÊÅ¥³s¤J³s½u"
-    print "-e --execute=file_to_run       - ±µ¨ì³s½u®É°õ¦æ«ü©wÀÉ®×"
-    print "-c --command                   - ±Ò°Ê©R¥O¦C shell"
-    print "-u --upload=destination        - ±µ¨ì³s½u®É¤W¶ÇÀÉ®×¨Ã¼g¥X[destination]"
+    print "ç”¨æ³•: bhpnet.py -t target_host -p port"
+    print "-l --listen                    - åœ¨ [host]:[port] ç›£è½é€£å…¥é€£ç·š"
+    print "-e --execute=file_to_run       - æ¥åˆ°é€£ç·šæ™‚åŸ·è¡ŒæŒ‡å®šæª”æ¡ˆ"
+    print "-c --command                   - å•Ÿå‹•å‘½ä»¤åˆ— shell"
+    print "-u --upload=destination        - æ¥åˆ°é€£ç·šæ™‚ä¸Šå‚³æª”æ¡ˆä¸¦å¯«å‡º[destination]"
     print
     print
-    print "½d¨Ò:"
+    print "ç¯„ä¾‹:"
     print "bhpnet.py -t 192.168.0.1 -p 5555 -l -c"
     print "bhpnet.py -t 192.168.0.1 -p 5555 -l -u=c:\\target.exe"
     print "bhpnet.py -t 192.168.0.1 -p 5555 -l -e=\"cat /etc/passwd\""
@@ -34,14 +34,14 @@ def client_sender(buffer):
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     
     try:
-        #³s¨ì¥Ø¼Ğ¥D¾÷
+        #é€£åˆ°ç›®æ¨™ä¸»æ©Ÿ
         client.connect((target, port))
         
         if (len(buffer)):
             client.send(buffer)
             
         while True:
-            #µM«áµ¥¸ê®Æ¦^¶Ç
+            #ç„¶å¾Œç­‰è³‡æ–™å›å‚³
             recv_len = 1
             response = ""
             
@@ -55,16 +55,16 @@ def client_sender(buffer):
                 
                 print response, 
                 
-                #µ¥«İ§ó¦h¿é¤J
+                #ç­‰å¾…æ›´å¤šè¼¸å…¥
                 buffer = raw_input("")
                 buffer += "\n"
                 
-                #¶Ç¥X¥h
+                #å‚³å‡ºå»
                 client.send(buffer)
     except:
         print "[*] Exception! Exiting."
         
-        #©î±¼³s½u
+        #æ‹†æ‰é€£ç·š
         client.close()
         
 def client_handler(client_socket):
@@ -72,12 +72,12 @@ def client_handler(client_socket):
     global execute
     global command
     
-    #ÀË¬d¤W¶Ç
+    #æª¢æŸ¥ä¸Šå‚³
     if len(upload_destination):
-        #Åª¤J©Ò¦³bytes¨Ã¼g¨ì«ü©w¦ì¸m
+        #è®€å…¥æ‰€æœ‰bytesä¸¦å¯«åˆ°æŒ‡å®šä½ç½®
         file_buffer =""
         
-        #¤@ª½Åª¨ì¨S¦³¸ê®Æ¬°¤î
+        #ä¸€ç›´è®€åˆ°æ²’æœ‰è³‡æ–™ç‚ºæ­¢
         while True:
             data = client_socket.recv(1024)
             if not data:
@@ -85,27 +85,27 @@ def client_handler(client_socket):
             else:
                 file_buffer += data
                 
-        #µM«á¸ÕµÛ§â³o¨Ç¸ê®Æ¦s¨ìÀÉ®×
+        #ç„¶å¾Œè©¦è‘—æŠŠé€™äº›è³‡æ–™å­˜åˆ°æª”æ¡ˆ
         try:
             file_descriptor = open(upload_destination, "wb")
             file_descriptor.write(file_buffer)
             file_descriptor.close()
             
-            #¦^À³§Ú­Ì½T¹ê§â¸ê®Æ¦s¦¨ÀÉ®×¤F
+            #å›æ‡‰æˆ‘å€‘ç¢ºå¯¦æŠŠè³‡æ–™å­˜æˆæª”æ¡ˆäº†
             client_socket.send("Successfully saved file to %s\r\n" % upload_destination)
         except:
             client_socket.send("Failed to save file to %s\r\n" % upload_destination)
             
     if len(execute):
-        #°õ¦æ«ü©w
+        #åŸ·è¡ŒæŒ‡ä»¤
         output = run_command(execute)
         client_socket.send(output)
         
     if command:
         while True:
-            #Åã¥Ü¤@­ÓÂ²³æªº´£¥Ü
+            #é¡¯ç¤ºä¸€å€‹ç°¡å–®çš„æç¤º
             client_socket.send("<BHP:#> ")
-            #±µµÛ«ùÄò±µ¦¬¸ê®Æ, ª½¨ì¦¬¨ìLF(EnterÁä)
+            #æ¥è‘—æŒçºŒæ¥æ”¶è³‡æ–™, ç›´åˆ°æ”¶åˆ°LF(Enteréµ)
             cmd_buffer = ""
             
             while "\n" not in cmd_buffer:
@@ -113,7 +113,7 @@ def client_handler(client_socket):
                 
             response = run_command(cmd_buffer)
             
-            #¦^¶Ç
+            #å›å‚³
             client_socket.send(response)
             
             
@@ -121,7 +121,7 @@ def client_handler(client_socket):
 def server_loop():
     global target
     
-    #­Y¨S©w¸q¥Ø¼Ğ, ´NºÊÅ¥©Ò¦³¤¶­±
+    #è‹¥æ²’å®šç¾©ç›®æ¨™, å°±ç›£è½æ‰€æœ‰ä»‹é¢
     if not len(target):
         target = "0.0.0.0"
         
@@ -132,20 +132,20 @@ def server_loop():
     while True:
         client_socket, addr = server.accept()
         
-        #±Ò°Ê¤@­Óthread³B²z·s¥Î¤áºİ
+        #å•Ÿå‹•ä¸€å€‹threadè™•ç†æ–°ç”¨æˆ¶ç«¯
         client_thread = threading.Thread(target=client_handler, args=(client_socket,))
         client_thread.start()
         
 def run_command(command):
-    #µô±¼´«¦æ²Å¸¹
+    #è£æ‰æ›è¡Œç¬¦è™Ÿ
     command = command.rstrip()
     
-    #°õ¦æ«ü¥O¨Ã¨ú¦^¿é¥X
+    #åŸ·è¡ŒæŒ‡ä»¤ä¸¦å–å›è¼¸å‡º
     try:
         output = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
     except:
-        output = "«ü¥O°õ¦æ¥¢±Ñ\r\n"
-    #§â¿é¥X¶Ç¦^¥Î¤áºİ
+        output = "æŒ‡ä»¤åŸ·è¡Œå¤±æ•—\r\n"
+    #æŠŠè¼¸å‡ºå‚³å›ç”¨æˆ¶ç«¯
     return output
 
     
@@ -182,19 +182,19 @@ def main():
         elif o in ("-p", "--listen"):
             port = int(a)
         else:
-            assert False, "¿ï¶µ¥¼³B²z"
+            assert False, "é¸é …æœªè™•ç†"
             
-    #§Ú­Ì­nºÊÅ¥, ÁÙ¬O¥u¬O±qstdin¶Ç°e¸ê®Æ?
+    #æˆ‘å€‘è¦ç›£è½, é‚„æ˜¯åªæ˜¯å¾stdinå‚³é€è³‡æ–™?
     if not listen and len(target) and port > 0:
-        #±q©R¥O¦CÅª¤Jbuffer
-        #³o·|block,©Ò¥H¦pªG¨S¦³­n³z¹Lstdin¶Ç¸ê®Æªº¸Ü
-        #­n«öCTRL-D
+        #å¾å‘½ä»¤åˆ—è®€å…¥buffer
+        #é€™æœƒblock,æ‰€ä»¥å¦‚æœæ²’æœ‰è¦é€éstdinå‚³è³‡æ–™çš„è©±
+        #è¦æŒ‰CTRL-D
         buffer = sys.stdin.read()
         
-        #§â¸ê®Æ°e¥X¥h
+        #æŠŠè³‡æ–™é€å‡ºå»
         client_sender(buffer)
         
-    #§Ú­Ì­nºÊÅ¥, ¦P®É¥i¯à®Ú¾Ú¤W­±ªº©R¥O¦C¿ï¶µ¤W¶ÇªF¦è,°õ¦æ«ü¥O, ©Î´£¨Ñshell
+    #æˆ‘å€‘è¦ç›£è½, åŒæ™‚å¯èƒ½æ ¹æ“šä¸Šé¢çš„å‘½ä»¤åˆ—é¸é …ä¸Šå‚³æ±è¥¿,åŸ·è¡ŒæŒ‡ä»¤, æˆ–æä¾›shell
     if listen:
         server_loop()
         
